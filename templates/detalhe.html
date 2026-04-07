@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detalhe</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <h1>🔍 Detalhe da Leitura</h1>
+
+    <p>ID: {{ leitura.id }}</p>
+    <p>Temperatura: {{ leitura.temperatura }}</p>
+    <p>Umidade: {{ leitura.umidade }}</p>
+    <p>Data: {{ leitura.timestamp }}</p>
+
+    <a href="/leituras">Voltar</a>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

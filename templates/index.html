@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Estação Meteorológica</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <h1>🌡️ Estação Meteorológica</h1>
+    
+    <a href="/leituras">Ver histórico</a>
+
+    <h2>Últimas Leituras</h2>
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Temperatura</th>
+            <th>Umidade</th>
+            <th>Data</th>
+        </tr>
+
+        {% for leitura in leituras %}
+        <tr>
+            <td>{{ leitura.id }}</td>
+            <td>{{ leitura.temperatura }}</td>
+            <td>{{ leitura.umidade }}</td>
+            <td>{{ leitura.timestamp }}</td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+    <h2>Estatísticas</h2>
+
+    {% if stats and stats.total > 0 %}
+        <p>Média Temperatura: {{ stats.temp_media }}</p>
+        <p>Máxima Temperatura: {{ stats.temp_max }}</p>
+        <p>Mínima Temperatura: {{ stats.temp_min }}</p>
+
+        <p>Média Umidade: {{ stats.umid_media }}</p>
+        <p>Máxima Umidade: {{ stats.umid_max }}</p>
+        <p>Mínima Umidade: {{ stats.umid_min }}</p>
+    {% else %}
+        <p>Sem dados suficientes</p>
+    {% endif %}
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

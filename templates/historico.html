@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Histórico</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <h1>📊 Histórico de Leituras</h1>
+
+    <a href="/">← Voltar</a>
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Temperatura</th>
+            <th>Umidade</th>
+            <th>Data</th>
+            <th>Ações</th>
+        </tr>
+
+        {% for leitura in leituras %}
+        <tr>
+            <td>{{ leitura.id }}</td>
+            <td>{{ leitura.temperatura }}</td>
+            <td>{{ leitura.umidade }}</td>
+            <td>{{ leitura.timestamp }}</td>
+            <td>
+                <button onclick="deletar({{ leitura.id }})">Deletar</button>
+                <a href="/leituras/{{ leitura.id }}/editar">Editar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <script>
+        function deletar(id) {
+            if (!confirm("Tem certeza que deseja deletar?")) return;
+
+            fetch(`/leituras/${id}`, {
+                method: 'DELETE'
+            })
+            .then(() => location.reload())
+        }
+    </script>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
