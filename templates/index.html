@@ -3,12 +3,15 @@
 <head>
     <title>Estação Meteorológica</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
     <h1>🌡️ Estação Meteorológica</h1>
     
-    <a href="/leituras">Ver histórico</a>
+    <div style="margin-bottom: 20px;">
+        <a href="/leituras">📊 Ver histórico</a>
+    </div>
 
     <h2>Últimas Leituras</h2>
 
@@ -31,19 +34,54 @@
 
     </table>
 
-    <h2>Estatísticas</h2>
+    <h2>📊 Estatísticas</h2>
 
-    {% if stats and stats.total > 0 %}
-        <p>Média Temperatura: {{ stats.temp_media }}</p>
-        <p>Máxima Temperatura: {{ stats.temp_max }}</p>
-        <p>Mínima Temperatura: {{ stats.temp_min }}</p>
+    <div class="cards">
+        <div class="card">
+            <h3>Média Temp</h3>
+            <p>{{ stats.temp_media }} °C</p>
+        </div>
 
-        <p>Média Umidade: {{ stats.umid_media }}</p>
-        <p>Máxima Umidade: {{ stats.umid_max }}</p>
-        <p>Mínima Umidade: {{ stats.umid_min }}</p>
-    {% else %}
-        <p>Sem dados suficientes</p>
-    {% endif %}
+        <div class="card">
+            <h3>Máx Temp</h3>
+            <p>{{ stats.temp_max }} °C</p>
+        </div>
+
+        <div class="card">
+            <h3>Mín Temp</h3>
+            <p>{{ stats.temp_min }} °C</p>
+        </div>
+
+        <div class="card">
+            <h3>Média Umidade</h3>
+            <p>{{ stats.umid_media }} %</p>
+        </div>
+    </div>
+
+    <h2>📈 Temperatura ao longo do tempo</h2>
+
+    <canvas id="grafico"></canvas>
+    <script>
+        const leituras = {{ leituras | tojson }};
+
+        const labels = leituras.map(l => l.timestamp);
+        const temperaturas = leituras.map(l => l.temperatura);
+
+        const ctx = document.getElementById('grafico');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels.reverse(),
+                datasets: [{
+                    label: 'Temperatura (°C)',
+                    data: temperaturas.reverse(),
+                    borderWidth: 2,
+                    tension: 0.3
+                }]
+            }
+        });
+    </script>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
