@@ -4,33 +4,37 @@
 
 {% block content %}
 <div class="section">
-    <h1>Dashboard</h1>
+    <h1>Dashboard
+        <span style="font-size: 0.7em; color: #666; margin-left: 15px;">
+            Atualizado às <span id="hora-atualizacao">--:--</span>
+        </span>
+    </h1>
     
     <h2>📈 Estatísticas</h2>
-    <div class="cards">
+    <div class="cards" id="cards-estatisticas">
         <div class="card">
             <h3>Temperatura Média</h3>
-            <p>{{ stats.temp_media }} °C</p>
+            <p id="temp-media">{{ stats.temp_media }} °C</p>
         </div>
         <div class="card">
             <h3>Temperatura Máxima</h3>
-            <p>{{ stats.temp_max }} °C</p>
+            <p id="temp-max">{{ stats.temp_max }} °C</p>
         </div>
         <div class="card">
             <h3>Temperatura Mínima</h3>
-            <p>{{ stats.temp_min }} °C</p>
+            <p id="temp-min">{{ stats.temp_min }} °C</p>
         </div>
         <div class="card">
             <h3>Umidade Média</h3>
-            <p>{{ stats.umid_media }} %</p>
+            <p id="umid-media">{{ stats.umid_media }} %</p>
         </div>
         <div class="card">
             <h3>Umidade Máxima</h3>
-            <p>{{ stats.umid_max }} %</p>
+            <p id="umid-max">{{ stats.umid_max }} %</p>
         </div>
         <div class="card">
             <h3>Umidade Mínima</h3>
-            <p>{{ stats.umid_min }} %</p>
+            <p id="umid-min">{{ stats.umid_min }} %</p>
         </div>
     </div>
 
@@ -44,7 +48,7 @@
                 <th>Data</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="tabela-leituras">
             {% for leitura in leituras %}
             <tr>
                 <td>#{{ leitura.id }}</td>
@@ -56,60 +60,157 @@
         </tbody>
     </table>
 
-    <h2>📈 Gráfico de Temperatura</h2>
+    <h2>📈 Gráfico de Temperatura e Umidade</h2>
     <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
         <canvas id="grafico"></canvas>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const leituras = {{ leituras | tojson }};
+        let chart = null;
 
-        const labels = leituras.map(l => l.timestamp);
-        const temperaturas = leituras.map(l => l.temperatura);
+        function atualizarDashboard() {
+            fetch('/?formato=json')
+                .then(response => response.json())
+                .then(data => {
+                    // Atualizar hora de atualização
+                    const agora = new Date();
+                    const hora = String(agora.getHours()).padStart(2, '0');
+                    const minutos = String(agora.getMinutes()).padStart(2, '0');
+                    document.getElementById('hora-atualizacao').textContent = `${hora}:${minutos}`;
 
-        const ctx = document.getElementById('grafico');
+                    // Atualizar estatísticas
+                    document.getElementById('temp-media').textContent = data.estatisticas.temp_media + ' °C';
+                    document.getElementById('temp-max').textContent = data.estatisticas.temp_max + ' °C';
+                    document.getElementById('temp-min').textContent = data.estatisticas.temp_min + ' °C';
+                    document.getElementById('umid-media').textContent = data.estatisticas.umid_media + ' %';
+                    document.getElementById('umid-max').textContent = data.estatisticas.umid_max + ' %';
+                    document.getElementById('umid-min').textContent = data.estatisticas.umid_min + ' %';
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels.reverse(),
-                datasets: [{
-                    label: 'Temperatura (°C)',
-                    data: temperaturas.reverse(),
-                    borderWidth: 2.5,
-                    borderColor: '#0066cc',
-                    backgroundColor: 'rgba(0, 102, 204, 0.05)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#0066cc',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        labels: {
-                            font: { size: 12 }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        ticks: {
-                            callback: function(value) {
-                                return value + ' °C';
+                    // Atualizar tabela
+                    const tbody = document.getElementById('tabela-leituras');
+                    tbody.innerHTML = '';
+                    data.leituras.forEach(leitura => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>#${leitura.id}</td>
+                            <td>${leitura.temperatura} °C</td>
+                            <td>${leitura.umidade} %</td>
+                            <td>${leitura.timestamp}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // Atualizar gráfico
+                    atualizarGrafico(data.leituras);
+                })
+                .catch(error => console.error('Erro ao atualizar:', error));
+        }
+
+        function atualizarGrafico(leituras) {
+            const labels = leituras.map(l => l.timestamp).reverse();
+            const temperaturas = leituras.map(l => l.temperatura).reverse();
+            const umidades = leituras.map(l => l.umidade).reverse();
+
+            if (chart) {
+                chart.data.labels = labels;
+                chart.data.datasets[0].data = temperaturas;
+                chart.data.datasets[1].data = umidades;
+                chart.update();
+            } else {
+                const ctx = document.getElementById('grafico');
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Temperatura (°C)',
+                                data: temperaturas,
+                                borderWidth: 2.5,
+                                borderColor: '#0066cc',
+                                backgroundColor: 'rgba(0, 102, 204, 0.05)',
+                                fill: true,
+                                tension: 0.3,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#0066cc',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Umidade (%)',
+                                data: umidades,
+                                borderWidth: 2.5,
+                                borderColor: '#28a745',
+                                backgroundColor: 'rgba(40, 167, 69, 0.05)',
+                                fill: true,
+                                tension: 0.3,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#28a745',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: {
+                                    font: { size: 12 }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Temperatura (°C)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '°C';
+                                    }
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Umidade (%)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                }
                             }
                         }
                     }
-                }
+                });
             }
-        });
+        }
+
+        // Atualizar ao carregar a página
+        atualizarDashboard();
+
+        // Atualizar a cada 30 segundos
+        setInterval(atualizarDashboard, 30000);
     </script>
 </div>
 {% endblock %}
