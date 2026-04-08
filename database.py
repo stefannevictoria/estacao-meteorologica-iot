@@ -95,8 +95,16 @@ def deletar_leitura(id: int) -> bool:
     return deletado
 
 
+def contar_leituras() -> int:
+    """Retorna o total de leituras no banco."""
+    conn = get_db_connection()
+    row = conn.execute('SELECT COUNT(*) as total FROM leituras').fetchone()
+    conn.close()
+    return row['total'] if row else 0
+
+
 def obter_estatisticas() -> dict:
-    """Retorna média, mínimo e máximo de temperatura e umidade."""
+    """Retorna média, mínimo e máximo de temperatura, umidade e pressão."""
     conn = get_db_connection()
     row = conn.execute('''
         SELECT
@@ -106,6 +114,9 @@ def obter_estatisticas() -> dict:
             ROUND(AVG(umidade), 2)     AS umid_media,
             ROUND(MIN(umidade), 2)     AS umid_min,
             ROUND(MAX(umidade), 2)     AS umid_max,
+            ROUND(AVG(pressao), 2)     AS pres_media,
+            ROUND(MIN(pressao), 2)     AS pres_min,
+            ROUND(MAX(pressao), 2)     AS pres_max,
             COUNT(*)                   AS total
         FROM leituras
     ''').fetchone()

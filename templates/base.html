@@ -1,12 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <title>{% block title %}{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Estação Meteorológica{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <h1>🌡️ Estação Meteorológica</h1>
+            </div>
+            <ul class="navbar-menu">
+                <li><a href="/" {% if request.endpoint == 'index' %}class="active"{% endif %}>Dashboard</a></li>
+                <li><a href="/leituras" {% if request.endpoint == 'listar' %}class="active"{% endif %}>Histórico</a></li>
+            </ul>
+        </div>
+    </nav>
 
-    {% block content %}{% endblock %}
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <main class="container main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

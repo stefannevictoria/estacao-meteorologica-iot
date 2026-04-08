@@ -1,49 +1,71 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Histórico</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
+{% extends "base.html" %}
 
+{% block title %}Histórico de Leituras{% endblock %}
+
+{% block content %}
+<div class="section">
     <h1>📊 Histórico de Leituras</h1>
 
-    <a href="/">← Voltar</a>
-
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>Temperatura</th>
-            <th>Umidade</th>
-            <th>Data</th>
-            <th>Ações</th>
-        </tr>
-
-        {% for leitura in leituras %}
-        <tr>
-            <td>{{ leitura.id }}</td>
-            <td>{{ leitura.temperatura }}</td>
-            <td>{{ leitura.umidade }}</td>
-            <td>{{ leitura.timestamp }}</td>
-            <td>
-                <button onclick="deletar({{ leitura.id }})">Deletar</button>
-                <a href="/leituras/{{ leitura.id }}/editar">Editar</a>
-            </td>
-        </tr>
-        {% endfor %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Temperatura</th>
+                <th>Umidade</th>
+                <th>Data</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for leitura in leituras %}
+            <tr>
+                <td>#{{ leitura.id }}</td>
+                <td>{{ leitura.temperatura }} °C</td>
+                <td>{{ leitura.umidade }} %</td>
+                <td>{{ leitura.timestamp }}</td>
+                <td>
+                    <div class="actions">
+                        <a href="/leituras/{{ leitura.id }}/editar" class="btn">Editar</a>
+                        <button type="button" onclick="deletar({{ leitura.id }})">Deletar</button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 
-    <script>
-        function deletar(id) {
-            if (!confirm("Tem certeza que deseja deletar?")) return;
+    {% if total_paginas > 1 %}
+    <div class="pagination">
+        {% if pagina > 1 %}
+        <a href="/leituras?pagina=1" class="btn">« Primeira</a>
+        <a href="/leituras?pagina={{ pagina - 1 }}" class="btn">‹ Anterior</a>
+        {% endif %}
+        
+        <span class="page-info">Página {{ pagina }} de {{ total_paginas }} ({{ total }} leituras)</span>
+        
+        {% if pagina < total_paginas %}
+        <a href="/leituras?pagina={{ pagina + 1 }}" class="btn">Próxima ›</a>
+        <a href="/leituras?pagina={{ total_paginas }}" class="btn">Última »</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
 
-            fetch(`/leituras/${id}`, {
-                method: 'DELETE'
-            })
-            .then(() => location.reload())
-        }
-    </script>
-    
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-</body>
-</html>
+<script>
+    function deletar(id) {
+        if (!confirm("Tem certeza que deseja deletar esta leitura?")) return;
+
+        fetch(`/leituras/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert("Erro ao deletar a leitura.");
+            }
+        })
+        .catch(error => console.error("Erro:", error));
+    }
+</script>
+{% endblock %}

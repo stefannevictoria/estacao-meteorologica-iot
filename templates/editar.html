@@ -1,43 +1,45 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Editar</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
+{% extends "base.html" %}
 
-    <h1>✏️ Editar Leitura</h1>
+{% block title %}Editar Leitura #{{ leitura.id }}{% endblock %}
 
-    <a href="/leituras">← Voltar</a>
+{% block content %}
+<div class="section">
+    <h1>✏️ Editar Leitura #{{ leitura.id }}</h1>
 
     <form id="form">
-        <label>Temperatura:</label><br>
-        <input type="number" step="0.1" id="temp" value="{{ leitura.temperatura }}"><br><br>
+        <label htmlFor="temp">Temperatura (°C)</label>
+        <input type="number" step="0.1" id="temp" value="{{ leitura.temperatura }}" required>
 
-        <label>Umidade:</label><br>
-        <input type="number" step="0.1" id="umid" value="{{ leitura.umidade }}"><br><br>
+        <label htmlFor="umid">Umidade (%)</label>
+        <input type="number" step="0.1" id="umid" value="{{ leitura.umidade }}" required>
 
-        <button type="submit">Salvar</button>
+        <button type="submit">💾 Salvar Alterações</button>
+        <a href="/leituras/{{ leitura.id }}" style="width: 100%; text-align: center; margin-top: 10px;">Cancelar</a>
     </form>
+</div>
 
-    <script>
-        document.getElementById("form").addEventListener("submit", function(e) {
-            e.preventDefault();
+<script>
+    document.getElementById("form").addEventListener("submit", function(e) {
+        e.preventDefault();
 
-            fetch("/leituras/{{ leitura.id }}", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    temperatura: document.getElementById("temp").value,
-                    umidade: document.getElementById("umid").value
-                })
+        fetch("/leituras/{{ leitura.id }}", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                temperatura: document.getElementById("temp").value,
+                umidade: document.getElementById("umid").value
             })
-            .then(() => window.location.href = "/leituras")
-        });
-    </script>
-
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-</body>
-</html>
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = "/leituras/{{ leitura.id }}";
+            } else {
+                alert("Erro ao salvar as alterações.");
+            }
+        })
+        .catch(error => console.error("Erro:", error));
+    });
+</script>
+{% endblock %}

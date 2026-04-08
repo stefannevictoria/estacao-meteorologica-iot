@@ -1,20 +1,38 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Detalhe</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
+{% extends "base.html" %}
 
-    <h1>🔍 Detalhe da Leitura</h1>
+{% block title %}Detalhe da Leitura #{{ leitura.id }}{% endblock %}
 
-    <p>ID: {{ leitura.id }}</p>
-    <p>Temperatura: {{ leitura.temperatura }}</p>
-    <p>Umidade: {{ leitura.umidade }}</p>
-    <p>Data: {{ leitura.timestamp }}</p>
+{% block content %}
+<div class="section">
+    <h1>🔍 Detalhe da Leitura #{{ leitura.id }}</h1>
 
-    <a href="/leituras">Voltar</a>
+    <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); max-width: 500px;">
+        <div style="margin-bottom: 20px;">
+            <h3 style="color: #666; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Temperatura</h3>
+            <p style="font-size: 2rem; font-weight: 700; color: #0066cc; margin: 0;">{{ leitura.temperatura }} °C</p>
+        </div>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-</body>
-</html>
+        <div style="margin-bottom: 20px;">
+            <h3 style="color: #666; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Umidade</h3>
+            <p style="font-size: 2rem; font-weight: 700; color: #0066cc; margin: 0;">{{ leitura.umidade }} %</p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <h3 style="color: #666; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Data</h3>
+            <p style="font-size: 1.1rem; margin: 0;">{{ leitura.timestamp }}</p>
+        </div>
+
+        {% if leitura.pressao %}
+        <div>
+            <h3 style="color: #666; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Pressão</h3>
+            <p style="font-size: 1.1rem; margin: 0;">{{ leitura.pressao }} hPa</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div style="margin-top: 30px;">
+        <a href="/leituras" class="back-link">← Voltar ao histórico</a>
+        <a href="/leituras/{{ leitura.id }}/editar" class="btn" style="margin-left: 10px;">✏️ Editar</a>
+    </div>
+</div>
+{% endblock %}

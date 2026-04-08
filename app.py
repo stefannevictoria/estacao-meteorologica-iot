@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, abort
 from database import (
-    init_db, inserir_leitura, listar_leituras,
+    init_db, inserir_leitura, listar_leituras, contar_leituras,
     buscar_leitura, atualizar_leitura, deletar_leitura, obter_estatisticas
 )
 
@@ -40,12 +40,14 @@ def listar():
     limite  = int(request.args.get('limite', 20))
     offset  = (pagina - 1) * limite
     leituras = listar_leituras(limite=limite, offset=offset)
+    total = contar_leituras()
+    total_paginas = (total + limite - 1) // limite  # Calcula o teto da divisão
 
     if quer_json():
-        return jsonify({'pagina': pagina, 'limite': limite, 'leituras': leituras})
+        return jsonify({'pagina': pagina, 'limite': limite, 'leituras': leituras, 'total': total})
 
     return render_template('historico.html', leituras=leituras,
-                           pagina=pagina, limite=limite)
+                           pagina=pagina, limite=limite, total=total, total_paginas=total_paginas)
 
 
 @app.route('/leituras', methods=['POST'])
