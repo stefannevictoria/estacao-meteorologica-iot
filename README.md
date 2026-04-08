@@ -12,13 +12,13 @@ O sistema coleta dados de sensores, envia via comunicação serial para um servi
 
 O sistema é dividido em três camadas:
 
-* **Dispositivo (Hardware)**
+* **Dispositivo (Hardware)**:
   Simulado no Tinkercad com Arduino Uno e sensores
 
-* **Servidor (Backend)**
+* **Servidor (Backend)**:
   Python + Flask + SQLite
 
-* **Interface (Frontend)**
+* **Interface (Frontend)**:
   HTML + CSS + JavaScript
 
 ---
@@ -70,6 +70,7 @@ A simulação pode ser acessada em: [Thinkercad](https://www.tinkercad.com/thing
 ![Simulação circuito](assets/simulacao.gif)
 
 O código utilizado na simulação pode ser encontrado em: [sketch.ino](arduino/sketch.ino)
+
 ---
 
 ## 🧠 Backend (API REST)
