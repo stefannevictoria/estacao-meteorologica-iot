@@ -87,7 +87,7 @@
                     document.getElementById('umid-max').textContent = data.estatisticas.umid_max + ' %';
                     document.getElementById('umid-min').textContent = data.estatisticas.umid_min + ' %';
 
-                    // Atualizar tabela
+                    // Atualiza tabela
                     const tbody = document.getElementById('tabela-leituras');
                     tbody.innerHTML = '';
                     data.leituras.forEach(leitura => {
@@ -101,7 +101,7 @@
                         tbody.appendChild(tr);
                     });
 
-                    // Atualizar gráfico
+                    // Atualiza gráfico
                     atualizarGrafico(data.leituras);
                 })
                 .catch(error => console.error('Erro ao atualizar:', error));
@@ -206,10 +206,10 @@
             }
         }
 
-        // Atualizar ao carregar a página
+        // Atualiza ao carregar a página
         atualizarDashboard();
 
-        // Atualizar a cada 30 segundos
+        // Atualiza a cada 30 segundos
         setInterval(atualizarDashboard, 30000);
     </script>
 </div>

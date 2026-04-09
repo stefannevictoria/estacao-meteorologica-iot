@@ -8,47 +8,35 @@ O sistema coleta dados de sensores, envia via comunicação serial para um servi
 
 ---
 
-## 🏗️ Arquitetura do Sistema
+## 🧠 O que foi desenvolvido
 
-O sistema é dividido em três camadas:
-
-* **Dispositivo (Hardware)**:
-  Simulado no Tinkercad com Arduino Uno e sensores
-
-* **Servidor (Backend)**:
-  Python + Flask + SQLite
-
-* **Interface (Frontend)**:
-  HTML + CSS + JavaScript
-
----
-
-## 🧠 O que eu desenvolvi
-
-- Simulação de sensores utilizando Arduino no Tinkercad
-- Envio de dados em formato JSON via comunicação serial
+- Simulação inicial dos sensores no Tinkercad
+- Implementação física com Arduino
+- Comunicação serial entre Arduino e backend
 - API REST completa com Flask
-- Banco de dados SQLite com operações CRUD
-- Interface web com visualização dos dados
-- Dashboard com estatísticas e gráfico de temperatura
+- Banco de dados SQLite com CRUD
+- Interface web com dashboard
+- Gráfico interativo de temperatura e umidade
 
 ---
 
-## 🔌 Simulação do Hardware
+## 🔌 Hardware
 
-Foi utilizada uma simulação no Tinkercad devido à indisponibilidade de hardware físico.
+### 🧪 Simulação (Tinkercad)
+
+Inicialmente, foi criada uma simulação no Tinkercad para validar o funcionamento do sistema sem depender de hardware físico.
 
 A simulação pode ser acessada em: [Thinkercad](https://www.tinkercad.com/things/ktEh5qbsMOZ/editel?returnTo=%2Fdashboard&sharecode=E-ZPyqz92Dpfuj3Jf3u44UCTWdBKYsSmvYI1Vte-Rbo)
 
 
-### 🧩 Componentes utilizados
+#### Componentes utilizados:
 
 - Arduino Uno
 - Sensor de temperatura TMP36
 - Sensor de umidade do solo (adaptado para simular umidade do ar)
 - Potenciômetro (utilizado para simular pressão atmosférica)
 
-### ⚙️ Como funciona
+#### Funcionamento:
 
 - O TMP36 mede a temperatura através de leitura analógica
 - O sensor de umidade fornece um valor proporcional convertido para %
@@ -59,17 +47,68 @@ A simulação pode ser acessada em: [Thinkercad](https://www.tinkercad.com/thing
 
 {"temperatura":24.5,"umidade":63.2,"pressao":1002.4}
 
-### 🖼️ Simulação
+#### 🖼️ Simulação
 
-#### 📷 Circuito no Thinkercad
+**Circuito no Thinkercad**
 
 ![Circuito thinkercad](assets/thinkercad.png)
 
-#### 🎥 Simulação em execução
+**Simulação em execução**
 
 ![Simulação circuito](assets/simulacao.gif)
 
 O código utilizado na simulação pode ser encontrado em: [sketch.ino](arduino/sketch.ino)
+
+### 🔧 Implementação física
+
+Posteriormente, foi realizada a montagem física utilizando:
+
+#### Componentes:
+
+- Arduino Uno
+- Sensor DHT11 (temperatura e umidade)
+
+#### Funcionamento:
+
+- O DHT11 realiza a leitura de temperatura e umidade do ambiente
+- Os dados são enviados via Serial em formato JSON a cada 5 segundos
+
+#### 📷 Montagem física
+
+![Circuito físico](assets/montagem_fisica.jpeg)
+
+**Funcionamento**
+
+![Vídeo funcionamento](assets/funcionamento_fisico.gif)
+
+O código do hardware pode ser encontrado em: [estacao.ino](arduino/estacao/estacao.ino)
+
+---
+
+## 🔄 Integração com o sistema
+
+A comunicação entre o Arduino e o backend é feita através do script `serial_reader.py`, que atua como um intermediário entre o hardware e a API.
+
+Ele é responsável por:
+
+- Ler continuamente os dados enviados pelo Arduino via porta serial  
+- Interpretar cada linha como um JSON válido  
+- Enviar os dados para a API Flask através de requisições HTTP (POST)  
+- Ignorar leituras inválidas que não estejam no formato esperado  
+
+Dessa forma, o Arduino não se comunica diretamente com o servidor, sendo necessário esse script para realizar a integração.
+
+⚠️ Para funcionamento completo, é necessário rodar:
+
+1. O servidor Flask:
+```bash
+python app.py
+```
+
+2. Em outro terminal, o leitor serial:
+```bash
+python serial_reader.py
+```
 
 ---
 
@@ -108,8 +147,10 @@ A tabela principal contém:
 - id (autoincremento)
 - temperatura
 - umidade
-- pressão
+- pressão (não utilizada na interface atual)
 - timestamp
+
+*Obs: A coluna de pressão foi mantida no modelo de dados por compatibilidade com a versão inicial do projeto (simulação no Tinkercad), porém não foi utilizada na implementação física final.*
 
 Também implementei:
 
@@ -169,10 +210,15 @@ source venv/bin/activate
 pip install flask pyserial
 ```
 
-### 5. Rodar o servidor
+### 5. Rodar o sistema
 
 ```bash
 python app.py
+```
+Em outro terminal:
+
+```bash
+python serial_reader.py
 ```
 
 ### 6. Acessar no navegador
@@ -183,22 +229,14 @@ http://localhost:5000
 
 
 
-### 🧪 Popular banco com dados
+### 🧪 Dados de exemplo
 
-Para popular o banco de dados, rode o script que gera dados aleatórios simulando leituras reais.
+O repositório inclui um banco de dados (`dados.db`) com leituras já inseridas.
+
+Caso queira gerar novos dados:
 
 ```bash
 python seed.py
-```
-
-Os dados enviados seguem o formato:
-
-```json
-{
-  "temperatura": 25.3,
-  "umidade": 60.1,
-  "pressao": 1005.2
-}
 ```
 
 ---
@@ -206,3 +244,5 @@ Os dados enviados seguem o formato:
 ## 🎯 Conclusão
 
 O projeto demonstra a integração completa entre hardware, backend e frontend, simulando um sistema real de IoT com coleta, armazenamento e visualização de dados em tempo real.
+
+A utilização de simulação e implementação física permitiu validar o sistema em diferentes contextos, garantindo robustez e funcionamento real.

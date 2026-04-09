@@ -1,5 +1,5 @@
 import serial, json, requests, time
-PORTA = 'COM7' # Windows: COM3 
+PORTA = 'COM7' 
 BAUD = 9600
 URL = 'http://localhost:5000/leituras'
 
